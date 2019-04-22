@@ -1,15 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2026
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ITnmg.CsvHelper", "ITnmg.CsvHelper\ITnmg.CsvHelper.csproj", "{ED3FFAD8-28BA-49BE-9378-FAA9498E0845}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ITnmg.CsvHelper", "ITnmg.CsvHelper\ITnmg.CsvHelper.csproj", "{ED3FFAD8-28BA-49BE-9378-FAA9498E0845}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Doc", "Doc", "{B62FB1B2-D4DC-4941-992F-D09033F4A304}"
-	ProjectSection(SolutionItems) = preProject
-		LICENSE = LICENSE
-		README.md = README.md
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.WinForm", "Example\Example.WinForm.csproj", "{22A04218-FD9D-4A2F-B658-121A3643F2D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +17,10 @@ Global
 		{ED3FFAD8-28BA-49BE-9378-FAA9498E0845}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED3FFAD8-28BA-49BE-9378-FAA9498E0845}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED3FFAD8-28BA-49BE-9378-FAA9498E0845}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22A04218-FD9D-4A2F-B658-121A3643F2D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22A04218-FD9D-4A2F-B658-121A3643F2D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22A04218-FD9D-4A2F-B658-121A3643F2D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22A04218-FD9D-4A2F-B658-121A3643F2D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
