@@ -10,13 +10,18 @@ namespace ITnmg.CsvHelper
     internal class ReadDataBlock
     {
         /// <summary>
-        /// 块编号
+        /// 解析出的整行数据
         /// </summary>
-        public int Id { get; set; }
+        public List<List<string>> Rows { get; set; }
 
         /// <summary>
-        /// 
+        /// 不足一行的数据中的字段
         /// </summary>
-        public byte[] Data { get; set; }
+        public List<string> Fields { get; set; }
+
+        /// <summary>
+        /// 剩余不足一行的数据
+        /// </summary>
+        public List<char> SubData { get; set; }
     }
 }

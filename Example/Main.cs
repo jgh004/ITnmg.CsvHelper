@@ -17,46 +17,47 @@ namespace Example
 {
     public partial class Main : Form
     {
-        SynchronizationContext sync = null;
-        CancellationTokenSource cancelSource = new CancellationTokenSource();
+        SynchronizationContext Sync = null;
+        CancellationTokenSource CancelSource = new CancellationTokenSource();
         //保存csv数据
-        List<string> columnsName = null;
-        List<TestProductModel> modelCsvData = null;
+        List<string> ColumnsName = null;
+        List<TestProductModel> ModelCsvData = null;
 
         public Main()
         {
             InitializeComponent();
 
 
-            var properInfo = this.dgv_Data.GetType().GetProperty( "DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic );
-            properInfo.SetValue( this.dgv_Data, true, null );
+            var properInfo = dgv_Data.GetType().GetProperty( "DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic );
+            properInfo.SetValue( dgv_Data, true, null );
 
-            this.dgv_Data.RowPostPaint += ExtLibrary_DataGridView_RowPostPaint;
+            //dgv_Data.RowPostPaint += ExtLibrary_DataGridView_RowPostPaint;
 
-            this.dgv_Data.VirtualMode = true;
-            this.dgv_Data.AutoGenerateColumns = false;
-            this.dgv_Data.CellValueNeeded += dgv_Data_CellValueNeeded;
+            dgv_Data.VirtualMode = true;
+            dgv_Data.AutoGenerateColumns = false;
+            dgv_Data.CellValueNeeded += dgv_Data_CellValueNeeded;
         }
 
 
         private void Main_Load( object sender, EventArgs e )
         {
-            this.cob_separator.SelectedIndex = 0;
-            this.cob_FieldEnclosed.SelectedIndex = 0;
-            this.cob_FirstIsHead.SelectedIndex = 0;
-            this.sync = SynchronizationContext.Current;
-            this.cancelSource = new CancellationTokenSource();
+            cob_separator.SelectedIndex = 0;
+            cob_FieldEnclosed.SelectedIndex = 0;
+            cob_FirstIsHead.SelectedIndex = 0;
+            Sync = SynchronizationContext.Current;
+            CancelSource = new CancellationTokenSource();
         }
 
         private void bt_Open_Click( object sender, EventArgs e )
         {
             try
             {
-                this.Cursor = Cursors.WaitCursor;
-                this.bt_Open.Enabled = false;
-                this.bt_Save.Enabled = false;
-                this.bt_GenerateTestData.Enabled = false;
-                this.pb_Progress.Value = 0;
+                Cursor = Cursors.WaitCursor;
+                bt_Open.Enabled = false;
+                bt_Save.Enabled = false;
+                bt_GenerateTestData.Enabled = false;
+                pb_Progress.Value = 0;
+                RefreshDataGridView( 0 );
 
                 OpenFileDialog f = new OpenFileDialog();
                 f.Filter = "CSV Files|*.csv|TxtFile|*.txt";
@@ -64,14 +65,14 @@ namespace Example
 
                 if ( f.ShowDialog() == System.Windows.Forms.DialogResult.OK )
                 {
-                    this.tb_FileName.Text = f.FileName;
+                    tb_FileName.Text = f.FileName;
 
                     ReadData().ContinueWith( k =>
                     {
-                        this.Cursor = Cursors.Default;
-                        this.bt_Open.Enabled = true;
-                        this.bt_Save.Enabled = true;
-                        this.bt_GenerateTestData.Enabled = true;
+                        Cursor = Cursors.Default;
+                        bt_Open.Enabled = true;
+                        bt_Save.Enabled = true;
+                        bt_GenerateTestData.Enabled = true;
 
                         if ( k.IsCanceled )
                         {
@@ -86,10 +87,10 @@ namespace Example
                 }
                 else
                 {
-                    this.Cursor = Cursors.Default;
-                    this.bt_Open.Enabled = true;
-                    this.bt_Save.Enabled = true;
-                    this.bt_GenerateTestData.Enabled = true;
+                    Cursor = Cursors.Default;
+                    bt_Open.Enabled = true;
+                    bt_Save.Enabled = true;
+                    bt_GenerateTestData.Enabled = true;
                 }
             }
             catch ( Exception ex )
@@ -105,24 +106,24 @@ namespace Example
         {
             try
             {
-                this.Cursor = Cursors.WaitCursor;
-                this.bt_Open.Enabled = false;
-                this.bt_Save.Enabled = false;
-                this.bt_GenerateTestData.Enabled = false;
-                this.pb_Progress.Value = 0;
+                Cursor = Cursors.WaitCursor;
+                bt_Open.Enabled = false;
+                bt_Save.Enabled = false;
+                bt_GenerateTestData.Enabled = false;
+                pb_Progress.Value = 0;
                 SaveFileDialog f = new SaveFileDialog();
                 f.Filter = "CSV File|*.csv";
-                f.FileName = string.IsNullOrWhiteSpace( this.tb_FileName.Text ) ? "test" : Path.GetFileNameWithoutExtension( this.tb_FileName.Text.Trim() ) + "-after.csv";
+                f.FileName = string.IsNullOrWhiteSpace( tb_FileName.Text ) ? "test" : Path.GetFileNameWithoutExtension( tb_FileName.Text.Trim() ) + "-after.csv";
                 f.InitialDirectory = Environment.GetFolderPath( Environment.SpecialFolder.Desktop );
 
                 if ( f.ShowDialog( this ) == System.Windows.Forms.DialogResult.OK )
                 {
                     WriteData( f.FileName ).ContinueWith( k =>
                     {
-                        this.Cursor = Cursors.Default;
-                        this.bt_Open.Enabled = true;
-                        this.bt_Save.Enabled = true;
-                        this.bt_GenerateTestData.Enabled = true;
+                        Cursor = Cursors.Default;
+                        bt_Open.Enabled = true;
+                        bt_Save.Enabled = true;
+                        bt_GenerateTestData.Enabled = true;
 
                         if ( k.IsCanceled )
                         {
@@ -137,10 +138,10 @@ namespace Example
                 }
                 else
                 {
-                    this.Cursor = Cursors.Default;
-                    this.bt_Open.Enabled = true;
-                    this.bt_Save.Enabled = true;
-                    this.bt_GenerateTestData.Enabled = true;
+                    Cursor = Cursors.Default;
+                    bt_Open.Enabled = true;
+                    bt_Save.Enabled = true;
+                    bt_GenerateTestData.Enabled = true;
                 }
             }
             catch ( Exception ex )
@@ -154,18 +155,18 @@ namespace Example
 
         private void bt_Cancel_Click( object sender, EventArgs e )
         {
-            if ( this.cancelSource != null && !this.cancelSource.IsCancellationRequested )
+            if ( CancelSource != null && !CancelSource.IsCancellationRequested )
             {
-                this.cancelSource.Cancel();
-                this.cancelSource = new CancellationTokenSource();
+                CancelSource.Cancel();
+                CancelSource = new CancellationTokenSource();
             }
         }
 
         private void bt_GenerateTestData_Click( object sender, EventArgs e )
         {
-            this.GenerateTestData();
-            this.InitDataGridView( this.columnsName );
-            this.RefreshDataGridView( this.modelCsvData.Count );
+            GenerateTestData();
+            InitDataGridView( ColumnsName );
+            RefreshDataGridView( ModelCsvData.Count );
         }
 
         /// <summary>
@@ -195,9 +196,9 @@ namespace Example
         /// <param name="e"></param>
         private void dgv_Data_CellValueNeeded( object sender, DataGridViewCellValueEventArgs e )
         {
-            if ( modelCsvData != null && e.RowIndex < modelCsvData.Count && e.ColumnIndex > -1 && e.RowIndex > -1 )
+            if ( ModelCsvData != null && e.RowIndex < ModelCsvData.Count && e.ColumnIndex > -1 && e.RowIndex > -1 )
             {
-                List<string> row = ConvertModelToRowData( modelCsvData[e.RowIndex] );
+                List<string> row = ConvertModelToRowData( ModelCsvData[e.RowIndex] );
                 e.Value = row[e.ColumnIndex];
             }
         }
@@ -209,44 +210,45 @@ namespace Example
         /// <returns></returns>
         private async Task ReadData()
         {
-            if ( !string.IsNullOrWhiteSpace( this.tb_FileName.Text ) )
+            if ( !string.IsNullOrWhiteSpace( tb_FileName.Text ) )
             {
                 Stopwatch sc = null;
                 CsvReadHelper csv = null;
-                
+
                 try
                 {
-                    this.modelCsvData = null;
-                    CsvFlag flag = new CsvFlag( Convert.ToChar( this.cob_separator.Text ), Convert.ToChar( this.cob_FieldEnclosed.Text ) );
-                    csv = new CsvReadHelper( this.tb_FileName.Text, Encoding.UTF8, flag, !Convert.ToBoolean( this.cob_FirstIsHead.SelectedIndex ), 40960 );
+                    ModelCsvData = null;
+                    CsvFlag flag = new CsvFlag( Convert.ToChar( cob_separator.Text ), Convert.ToChar( cob_FieldEnclosed.Text ) );
+                    csv = new CsvReadHelper( tb_FileName.Text, Encoding.UTF8, flag, !Convert.ToBoolean( cob_FirstIsHead.SelectedIndex ), 40960 );
 
-                    Progress<CsvReadProgressInfo<TestProductModel>> prog = new Progress<CsvReadProgressInfo<TestProductModel>>( e =>
+                    sc = Stopwatch.StartNew();
+                    await csv.ReadAsync( k =>
                     {
-                        this.sync.Post( f =>
+                        Sync.Post( f =>
                         {
                             var eve = f as CsvReadProgressInfo<TestProductModel>;
 
                             if ( eve.CurrentRowsData != null )
                             {
-                                if ( this.modelCsvData == null )
+                                if ( ModelCsvData == null )
                                 {
                                     InitDataGridView( eve.ColumnNames );
-                                    this.modelCsvData = eve.CurrentRowsData;
+                                    ModelCsvData = eve.CurrentRowsData;
                                 }
                                 else
                                 {
-                                    this.modelCsvData.AddRange( eve.CurrentRowsData );
+                                    ModelCsvData.AddRange( eve.CurrentRowsData );
                                 }
 
-                                this.RefreshDataGridView( this.modelCsvData.Count );
+                                if ( eve.ProgressValue - pb_Progress.Value >= 10 || eve.ProgressValue == 100 )
+                                {
+                                    RefreshDataGridView( ModelCsvData.Count );
+                                }
                             }
 
-                            this.pb_Progress.Value = Convert.ToInt32( eve.ProgressValue );
-                        }, e );
-                    } );
-
-                    sc = Stopwatch.StartNew();
-                    await csv.ReadAsync( prog, f => ConvertCsvRowToTestProductData( f ), this.cancelSource.Token, 5000 );
+                            pb_Progress.Value = Convert.ToInt32( eve.ProgressValue );
+                        }, k );
+                    }, f => ConvertCsvRowToTestProductData( f ), CancelSource.Token, 1000 );
                 }
                 finally
                 {
@@ -260,9 +262,9 @@ namespace Example
                         sc.Stop();
                     }
 
-                    this.sync.Post( k =>
+                    Sync.Post( k =>
                     {
-                        this.tb_Times.Text = k.ToString();
+                        tb_Times.Text = k.ToString();
                     }, sc.Elapsed.TotalSeconds.ToString() );
                 }
             }
@@ -275,42 +277,42 @@ namespace Example
         /// <returns></returns>
         private async Task WriteData( string fileName )
         {
-            if ( this.modelCsvData != null )
+            if ( ModelCsvData != null )
             {
                 Stopwatch sc = null;
                 CsvWriteHelper csv = null;
 
                 try
                 {
-                    CsvFlag flag = new CsvFlag( Convert.ToChar( this.cob_separator.Text ), Convert.ToChar( this.cob_FieldEnclosed.Text ) );
+                    CsvFlag flag = new CsvFlag( Convert.ToChar( cob_separator.Text ), Convert.ToChar( cob_FieldEnclosed.Text ) );
                     Progress<CsvWriteProgressInfo> p = new Progress<CsvWriteProgressInfo>( r =>
                     {
-                        this.sync.Post( t =>
+                        Sync.Post( t =>
                         {
-                            double val = (t as CsvWriteProgressInfo).WirteRowCount / (double)(this.modelCsvData.Count + (this.cob_FirstIsHead.SelectedIndex == 0 ? 1 : 0));
-                            this.pb_Progress.Value = Convert.ToInt32( val * 100 );
+                            double val = (t as CsvWriteProgressInfo).WirteRowCount / (double)(ModelCsvData.Count + (cob_FirstIsHead.SelectedIndex == 0 ? 1 : 0));
+                            pb_Progress.Value = Convert.ToInt32( val * 100 );
                         }, r );
                     } );
 
-                    csv = new CsvWriteHelper( fileName, Encoding.UTF8, flag, cancelSource.Token, p, 1000 );
+                    csv = new CsvWriteHelper( fileName, Encoding.UTF8, flag, CancelSource.Token, p, 1000 );
 
                     sc = Stopwatch.StartNew();
 
                     //因为 ui 线程同步执行 WriteLineAsync 中的部分代码, 所以用 Task.Run 在其它线程中执行, 避免 ui 阻塞.
                     await Task.Run( async () =>
                     {
-                        if ( columnsName != null )
+                        if ( ColumnsName != null )
                         {
-                            await csv.WriteLineAsync( columnsName );
+                            await csv.WriteLineAsync( ColumnsName );
                         }
 
-                        await csv.WriteAsync( this.modelCsvData, f =>
+                        await csv.WriteAsync( ModelCsvData, f =>
                         {
                             return ConvertModelToRowData( f );
                         } );
 
                         await csv.FlushAsync();
-                    }, this.cancelSource.Token );
+                    }, CancelSource.Token );
                 }
                 finally
                 {
@@ -324,9 +326,9 @@ namespace Example
                         sc.Stop();
                     }
 
-                    this.sync.Post( k =>
+                    Sync.Post( k =>
                     {
-                        this.tb_Times.Text = k.ToString();
+                        tb_Times.Text = k.ToString();
                     }, sc.Elapsed.TotalSeconds.ToString() );
                 }
             }
@@ -337,17 +339,17 @@ namespace Example
         /// </summary>
         private void GenerateTestData()
         {
-            this.columnsName = new List<string>();
-            this.columnsName.Add( "ID" );
-            this.columnsName.Add( "Name" );
-            this.columnsName.Add( "Description" );
-            this.columnsName.Add( "Size" );
-            this.columnsName.Add( "Price" );
-            this.columnsName.Add( "Html" );
-            this.columnsName.Add( "Url" );
-            this.columnsName.Add( "CreateDate" );
+            ColumnsName = new List<string>();
+            ColumnsName.Add( "ID" );
+            ColumnsName.Add( "Name" );
+            ColumnsName.Add( "Description" );
+            ColumnsName.Add( "Size" );
+            ColumnsName.Add( "Price" );
+            ColumnsName.Add( "Html" );
+            ColumnsName.Add( "Url" );
+            ColumnsName.Add( "CreateDate" );
 
-            this.modelCsvData = new List<TestProductModel>();
+            ModelCsvData = new List<TestProductModel>();
 
             for ( int i = 0; i < 100000; i++ )
             {
@@ -391,7 +393,7 @@ namespace Example
 </table></div>";
                 model.CreateDate = DateTime.Now;
 
-                modelCsvData.Add( model );
+                ModelCsvData.Add( model );
             }
         }
 
@@ -413,7 +415,7 @@ namespace Example
                 result.Add( model.Price.ToString() );
                 result.Add( model.Html );
                 result.Add( model.Url );
-                result.Add( model.CreateDate.GetDateTimeFormats('r')[0].ToString() );
+                result.Add( model.CreateDate.GetDateTimeFormats( 'r' )[0].ToString() );
             }
 
             return result;
@@ -424,7 +426,7 @@ namespace Example
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        private TestProductModel ConvertCsvRowToTestProductData(List<string> data)
+        private TestProductModel ConvertCsvRowToTestProductData( List<string> data )
         {
             TestProductModel result = new TestProductModel();
 
@@ -471,8 +473,8 @@ namespace Example
         /// <param name="columns"></param>
         private void InitDataGridView( List<string> columns )
         {
-            this.dgv_Data.Rows.Clear();
-            this.dgv_Data.Columns.Clear();
+            dgv_Data.Rows.Clear();
+            dgv_Data.Columns.Clear();
 
             if ( columns != null )
             {
@@ -485,7 +487,7 @@ namespace Example
                         DataPropertyName = c
                     };
 
-                    this.dgv_Data.Columns.Add( column );
+                    dgv_Data.Columns.Add( column );
                 }
             }
         }
@@ -496,11 +498,11 @@ namespace Example
         /// <param name="rowCount"></param>
         private void RefreshDataGridView( int rowCount )
         {
-            this.dgv_Data.RowCount = rowCount;
+            dgv_Data.RowCount = rowCount;
 
-            if ( this.dgv_Data.RowCount > 0 )
+            if ( dgv_Data.RowCount > 0 )
             {
-                this.dgv_Data.FirstDisplayedScrollingRowIndex = this.dgv_Data.RowCount - 1;
+                dgv_Data.FirstDisplayedScrollingRowIndex = dgv_Data.RowCount - 1;
             }
         }
     }
