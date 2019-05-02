@@ -31,7 +31,7 @@ Run the following command in the Package Manager Console.
 			SetProgress( Convert.ToInt32( e.ProgressValue ) );
 		}, f =>
 		{
-	    	return ConvertCsvRowToCustomModel( f );
+			return ConvertCsvRowToCustomModel( f );
 		}, cancelToken, 1000 );
 		
         csvReader.Close();
@@ -40,7 +40,7 @@ Run the following command in the Package Manager Console.
 ### Writing csv
     public async Task WriteCsv(...)
     {
-        //using delegate to get rows data. 使用委托获取数据
+		//using delegate to get rows data. 使用委托获取数据
         Progress<CsvWriteProgressInfo> progress = new Progress<CsvWriteProgressInfo>( e =>
         {
             SetProgress( Convert.ToInt32( e.WirteRowCount / totalRowCount * 100 ) );
