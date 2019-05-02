@@ -5,7 +5,7 @@
   简单易用的 csv 异步读写类库, 可读写大型 csv 文件. 
 
 # Test Form
-![实现效果](https://raw.githubusercontent.com/jgh004/ITnmg.CsvHelper/master/docs/test.png?s=200)
+![实现效果](https://raw.githubusercontent.com/jgh004/ITnmg.CsvHelper/master/Docs/test.png?s=200)
 
 # Install
 
@@ -25,14 +25,14 @@ Run the following command in the Package Manager Console.
         var csvReader = new CsvReadHelper( fileName or stream, encoding, flag, firstRowIsHead, readStreamBufferLength );
         
         await csvReader.ReadAsync( p => 
-		{
-			SetColumnHeads( e.ColumnNames );
-			ShowData( e.CurrentRowsData );
-			SetProgress( Convert.ToInt32( e.ProgressValue ) );
-		}, f =>
-		{
-			return ConvertCsvRowToCustomModel( f );
-		}, cancelToken, 1000 );
+        {
+            SetColumnHeads( e.ColumnNames );
+            ShowData( e.CurrentRowsData );
+            SetProgress( Convert.ToInt32( e.ProgressValue ) );
+        }, f =>
+        {
+            return ConvertCsvRowToCustomModel( f );
+        }, cancelToken, 1000 );
 		
         csvReader.Close();
     }
@@ -40,7 +40,7 @@ Run the following command in the Package Manager Console.
 ### Writing csv
     public async Task WriteCsv(...)
     {
-		//using delegate to get rows data. 使用委托获取数据
+        //using delegate to get rows data. 使用委托获取数据
         Progress<CsvWriteProgressInfo> progress = new Progress<CsvWriteProgressInfo>( e =>
         {
             SetProgress( Convert.ToInt32( e.WirteRowCount / totalRowCount * 100 ) );
