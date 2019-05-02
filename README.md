@@ -25,14 +25,14 @@ Run the following command in the Package Manager Console.
         var csvReader = new CsvReadHelper( fileName or stream, encoding, flag, firstRowIsHead, readStreamBufferLength );
         
         await csvReader.ReadAsync( p => 
-		{
-			SetColumnHeads( e.ColumnNames );
-            ShowData( e.CurrentRowsData );
-            SetProgress( Convert.ToInt32( e.ProgressValue ) );
-		}, f =>
-		{
+	{
+		SetColumnHeads( e.ColumnNames );
+		ShowData( e.CurrentRowsData );
+		SetProgress( Convert.ToInt32( e.ProgressValue ) );
+	}, f =>
+	{
 	    	return ConvertCsvRowToCustomModel( f );
-		}, cancelToken, 1000 );
+	}, cancelToken, 1000 );
 		
         csvReader.Close();
     }
