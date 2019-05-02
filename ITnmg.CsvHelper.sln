@@ -7,6 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ITnmg.CsvHelper", "ITnmg.Cs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.WinForm", "Example\Example.WinForm.csproj", "{22A04218-FD9D-4A2F-B658-121A3643F2D6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{B820BEA0-ADB0-422D-92C4-2F1E1926851A}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\logo.png = Docs\logo.png
+		Docs\logo_big.png = Docs\logo_big.png
+		Docs\logo_small.png = Docs\logo_small.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -2,10 +2,29 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>1.0.2</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>ITnmg</Authors>
+    <Description>异步 CSV 文件读写库，大文件读写助手。A library for async read and write large csv file.</Description>
+    <Copyright>Copyright (c) 2018-2019 ITnmg</Copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/jgh004/ITnmg.CsvHelper</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/jgh004/ITnmg.CsvHelper/master/Docs/logo.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/jgh004/ITnmg.CsvHelper.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>改进性能</PackageReleaseNotes>
+    <PackageTags>csv,csvFile,csvStream,csvHelper,csvHelperAsync,csvAsync,csvRead,csvWrite</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Memory" Version="4.5.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
