@@ -5,11 +5,12 @@
   简单易用的 csv 异步读写类库, 可读写大型 csv 文件. 
 
 # Test Form
-  读取10万条记录（约127MB）
-![读取10万条记录（约127MB）](https://raw.githubusercontent.com/jgh004/ITnmg.CsvHelper/master/Docs/read.png?s=200)
 
   写入10万条记录（约127MB）
 ![写入10万条记录（约127MB）](https://raw.githubusercontent.com/jgh004/ITnmg.CsvHelper/master/Docs/write.png?s=200)
+
+  读取10万条记录（约127MB）
+![读取10万条记录（约127MB）](https://raw.githubusercontent.com/jgh004/ITnmg.CsvHelper/master/Docs/read.png?s=200)
 
 # Install
 
