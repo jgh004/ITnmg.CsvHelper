@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{B820BEA0-A
 		Docs\logo.png = Docs\logo.png
 		Docs\logo_big.png = Docs\logo_big.png
 		Docs\logo_small.png = Docs\logo_small.png
+		Docs\read.png = Docs\read.png
+		Docs\write.png = Docs\write.png
 	EndProjectSection
 EndProject
 Global

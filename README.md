@@ -5,7 +5,8 @@
   简单易用的 csv 异步读写类库, 可读写大型 csv 文件. 
 
 # Test Form
-![实现效果](https://raw.githubusercontent.com/jgh004/ITnmg.CsvHelper/master/Docs/test.png?s=200)
+![读取10万条记录（约127MB）](https://raw.githubusercontent.com/jgh004/ITnmg.CsvHelper/master/Docs/read.png?s=200)
+![写入10万条记录（约127MB）](https://raw.githubusercontent.com/jgh004/ITnmg.CsvHelper/master/Docs/write.png?s=200)
 
 # Install
 
@@ -20,9 +21,9 @@ Run the following command in the Package Manager Console.
 [IETF RFC4180](https://tools.ietf.org/html/rfc4180)
 
 ### Read csv
-    public async Task ReadCsv(...)
+    public async Task ReadCsv( ... )
     {
-        var csvReader = new CsvReadHelper( fileName or stream, encoding, flag, firstRowIsHead, readStreamBufferLength );
+        var csvReader = new CsvReadHelper( ... );
         
         await csvReader.ReadAsync( p => 
         {
@@ -32,36 +33,29 @@ Run the following command in the Package Manager Console.
         }, f =>
         {
             return ConvertCsvRowToCustomModel( f );
-        }, cancelToken, 1000 );
+        }, 1000 );
 		
         csvReader.Close();
     }
     
 ### Write csv
-    public async Task WriteCsv(...)
+    public async Task WriteCsv( ... )
     {
-        //using delegate to get rows data. 使用委托获取数据
-        Progress<CsvWriteProgressInfo> progress = new Progress<CsvWriteProgressInfo>( e =>
+        var csvWriter = new CsvWriteHelper( ..., f =>
         {
-            SetProgress( Convert.ToInt32( e.WirteRowCount / totalRowCount * 100 ) );
-        } );
-        
-        var csvWriter = new CsvWriteHelper( fileName or stream, encoding, flag, cancelToken, progress, 1000 );
-        
-        //prevent ui thread blocking. 防止 ui 线程阻塞
-        await Task.Run( async () =>
-        {
-            await csvWriter.WriteLineAsync( columnNames );
-            await csvWriter.WriteAsync( modelList, f =>
-            {
-                return ConvertCustomModelToRowData( f );
-            } );
-            ...
-            ...
-            ...
-            await csvWriter.WriteAsync(...);
+            SetProgressVal( f.WirteRowCount / TotalModelCount );
+        }, ... );
 
-            await csvWriter.FlushAsync();
-            csvWriter.Close();
-        }, cancelToken );
+        await csvWriter.WriteLineAsync( columnNames );
+        await csvWriter.WriteAsync( modelList1, f =>
+        {
+            return ConvertModelToRowData( f );
+        } );
+        await csvWriter.WriteAsync( modelList2, f =>
+        {
+            return ConvertModelToRowData2( f );
+        } );
+
+        await csvWriter.FlushAsync();
+        csvWriter.Close();
     }
