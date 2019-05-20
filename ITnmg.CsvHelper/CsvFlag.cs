@@ -15,9 +15,19 @@ namespace ITnmg.CsvHelper
         private char fieldQualifier;
 
         /// <summary>
+        /// 字段分隔符
+        /// </summary>
+        private char fieldSeparator;
+
+        /// <summary>
         /// 获取字段限定符的字符串表示, 用于在序列化 CSV 字段时快速读取此值, 避免过于频繁的转换类型, 提高效率.
         /// </summary>
         internal string Qualifier { get; private set; }
+
+        /// <summary>
+        /// 字段分隔符字符串表示
+        /// </summary>
+        internal string Separator { get; private set; }
 
         /// <summary>
         /// 获取连续两个字段限定符的字符串表示, 用于在序列化 CSV 字段时快速读取此值, 避免过于频繁的转换类型, 提高效率.
@@ -25,9 +35,25 @@ namespace ITnmg.CsvHelper
         internal string DoubleQualifier { get; private set; }
 
         /// <summary>
+        /// RFC4180标准分隔符与限定符
+        /// </summary>
+        public static CsvFlag CsvFlagForRFC4180 = new CsvFlag();
+
+        /// <summary>
         /// 获取字段分隔符
         /// </summary>
-        public char FieldSeparator { get; private set; }
+        public char FieldSeparator
+        {
+            get
+            {
+                return fieldSeparator;
+            }
+            private set
+            {
+                fieldSeparator = value;
+                Separator = value.ToString();
+            }
+        }
 
         /// <summary>
         /// 获取字段限定符

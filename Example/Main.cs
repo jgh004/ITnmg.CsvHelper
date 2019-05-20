@@ -46,6 +46,8 @@ namespace Example
             cob_FirstIsHead.SelectedIndex = 0;
             Sync = SynchronizationContext.Current;
             CancelSource = new CancellationTokenSource();
+
+            Init();
         }
 
         private void bt_Open_Click( object sender, EventArgs e )
@@ -55,7 +57,6 @@ namespace Example
                 Cursor = Cursors.WaitCursor;
                 bt_Open.Enabled = false;
                 bt_Save.Enabled = false;
-                bt_GenerateTestData.Enabled = false;
                 pb_Progress.Value = 0;
                 RefreshDataGridView( 0 );
 
@@ -63,7 +64,7 @@ namespace Example
                 f.Filter = "CSV Files|*.csv|TxtFile|*.txt";
                 f.InitialDirectory = Environment.GetFolderPath( Environment.SpecialFolder.DesktopDirectory );
 
-                if ( f.ShowDialog() == System.Windows.Forms.DialogResult.OK )
+                if ( f.ShowDialog() == DialogResult.OK )
                 {
                     tb_FileName.Text = f.FileName;
 
@@ -72,7 +73,7 @@ namespace Example
                         Cursor = Cursors.Default;
                         bt_Open.Enabled = true;
                         bt_Save.Enabled = true;
-                        bt_GenerateTestData.Enabled = true;
+                        RefreshDataGridView( ModelCsvData.Count );
 
                         if ( k.IsCanceled )
                         {
@@ -81,7 +82,7 @@ namespace Example
 
                         if ( k.Exception != null )
                         {
-                            MessageBox.Show( k.Exception.InnerException.Message );
+                            MessageBox.Show( k.Exception.GetBaseException().Message );
                         }
                     }, TaskScheduler.FromCurrentSynchronizationContext() );
                 }
@@ -90,15 +91,11 @@ namespace Example
                     Cursor = Cursors.Default;
                     bt_Open.Enabled = true;
                     bt_Save.Enabled = true;
-                    bt_GenerateTestData.Enabled = true;
                 }
             }
             catch ( Exception ex )
             {
                 MessageBox.Show( ex.Message );
-            }
-            finally
-            {
             }
         }
 
@@ -109,30 +106,28 @@ namespace Example
                 Cursor = Cursors.WaitCursor;
                 bt_Open.Enabled = false;
                 bt_Save.Enabled = false;
-                bt_GenerateTestData.Enabled = false;
                 pb_Progress.Value = 0;
                 SaveFileDialog f = new SaveFileDialog();
                 f.Filter = "CSV File|*.csv";
                 f.FileName = string.IsNullOrWhiteSpace( tb_FileName.Text ) ? "test" : Path.GetFileNameWithoutExtension( tb_FileName.Text.Trim() ) + "-after.csv";
                 f.InitialDirectory = Environment.GetFolderPath( Environment.SpecialFolder.Desktop );
 
-                if ( f.ShowDialog( this ) == System.Windows.Forms.DialogResult.OK )
+                if ( f.ShowDialog( this ) == DialogResult.OK )
                 {
                     WriteData( f.FileName ).ContinueWith( k =>
                     {
                         Cursor = Cursors.Default;
                         bt_Open.Enabled = true;
                         bt_Save.Enabled = true;
-                        bt_GenerateTestData.Enabled = true;
+                        RefreshDataGridView( ModelCsvData.Count );
 
                         if ( k.IsCanceled )
                         {
                             MessageBox.Show( "Write operation has been canceled." );
                         }
-
                         if ( k.Exception != null )
                         {
-                            MessageBox.Show( k.Exception.InnerException.Message );
+                            MessageBox.Show( k.Exception.GetBaseException().Message );
                         }
                     }, TaskScheduler.FromCurrentSynchronizationContext() );
                 }
@@ -141,15 +136,11 @@ namespace Example
                     Cursor = Cursors.Default;
                     bt_Open.Enabled = true;
                     bt_Save.Enabled = true;
-                    bt_GenerateTestData.Enabled = true;
                 }
             }
             catch ( Exception ex )
             {
                 MessageBox.Show( ex.Message );
-            }
-            finally
-            {
             }
         }
 
@@ -159,14 +150,8 @@ namespace Example
             {
                 CancelSource.Cancel();
                 CancelSource = new CancellationTokenSource();
+                RefreshDataGridView( ModelCsvData == null ? 0 : ModelCsvData.Count );
             }
-        }
-
-        private void bt_GenerateTestData_Click( object sender, EventArgs e )
-        {
-            GenerateTestData();
-            InitDataGridView( ColumnsName );
-            RefreshDataGridView( ModelCsvData.Count );
         }
 
         /// <summary>
@@ -204,6 +189,13 @@ namespace Example
         }
 
 
+        private void Init()
+        {
+            GenerateTestData();
+            InitDataGridView( ColumnsName );
+            RefreshDataGridView( ModelCsvData.Count );
+        }
+
         /// <summary>
         /// 异步读取csv
         /// </summary>
@@ -212,16 +204,16 @@ namespace Example
         {
             if ( !string.IsNullOrWhiteSpace( tb_FileName.Text ) )
             {
+                ModelCsvData = null;
                 Stopwatch sc = null;
                 CsvReadHelper csv = null;
 
                 try
                 {
-                    ModelCsvData = null;
-                    CsvFlag flag = new CsvFlag( Convert.ToChar( cob_separator.Text ), Convert.ToChar( cob_FieldEnclosed.Text ) );
-                    csv = new CsvReadHelper( tb_FileName.Text, Encoding.UTF8, flag, !Convert.ToBoolean( cob_FirstIsHead.SelectedIndex ), 40960 );
-
                     sc = Stopwatch.StartNew();
+                    CsvFlag flag = new CsvFlag( Convert.ToChar( cob_separator.Text ), Convert.ToChar( cob_FieldEnclosed.Text ) );
+                    csv = new CsvReadHelper( tb_FileName.Text, Encoding.UTF8, flag, CancelSource.Token, !Convert.ToBoolean( cob_FirstIsHead.SelectedIndex ), 40960 );
+
                     await csv.ReadAsync( k =>
                     {
                         Sync.Post( f =>
@@ -248,20 +240,12 @@ namespace Example
 
                             pb_Progress.Value = Convert.ToInt32( eve.ProgressValue );
                         }, k );
-                    }, f => ConvertCsvRowToTestProductData( f ), CancelSource.Token, 1000 );
+                    }, f => ConvertCsvRowToTestProductData( f ), 1000 );
                 }
                 finally
                 {
-                    if ( csv != null )
-                    {
-                        csv.Close();
-                    }
-
-                    if ( sc != null )
-                    {
-                        sc.Stop();
-                    }
-
+                    csv?.Close();
+                    sc?.Stop();
                     Sync.Post( k =>
                     {
                         tb_Times.Text = k.ToString();
@@ -284,48 +268,30 @@ namespace Example
 
                 try
                 {
+                    sc = Stopwatch.StartNew();
+
                     CsvFlag flag = new CsvFlag( Convert.ToChar( cob_separator.Text ), Convert.ToChar( cob_FieldEnclosed.Text ) );
-                    Progress<CsvWriteProgressInfo> p = new Progress<CsvWriteProgressInfo>( r =>
+                    csv = new CsvWriteHelper( fileName, Encoding.UTF8, flag, f =>
                     {
                         Sync.Post( t =>
                         {
                             double val = (t as CsvWriteProgressInfo).WirteRowCount / (double)(ModelCsvData.Count + (cob_FirstIsHead.SelectedIndex == 0 ? 1 : 0));
                             pb_Progress.Value = Convert.ToInt32( val * 100 );
-                        }, r );
-                    } );
+                        }, f );
+                    }, CancelSource.Token, 1000 );
 
-                    csv = new CsvWriteHelper( fileName, Encoding.UTF8, flag, CancelSource.Token, p, 1000 );
-
-                    sc = Stopwatch.StartNew();
-
-                    //因为 ui 线程同步执行 WriteLineAsync 中的部分代码, 所以用 Task.Run 在其它线程中执行, 避免 ui 阻塞.
-                    await Task.Run( async () =>
+                    if ( ColumnsName != null )
                     {
-                        if ( ColumnsName != null )
-                        {
-                            await csv.WriteLineAsync( ColumnsName );
-                        }
+                        await csv.WriteLineAsync( ColumnsName );
+                    }
 
-                        await csv.WriteAsync( ModelCsvData, f =>
-                        {
-                            return ConvertModelToRowData( f );
-                        } );
-
-                        await csv.FlushAsync();
-                    }, CancelSource.Token );
+                    await csv.WriteAsync( ModelCsvData, f => ConvertModelToRowData( f ) );
+                    await csv.FlushAsync();
                 }
                 finally
                 {
-                    if ( csv != null )
-                    {
-                        csv.Close();
-                    }
-
-                    if ( sc != null )
-                    {
-                        sc.Stop();
-                    }
-
+                    csv?.Close();
+                    sc?.Stop();
                     Sync.Post( k =>
                     {
                         tb_Times.Text = k.ToString();

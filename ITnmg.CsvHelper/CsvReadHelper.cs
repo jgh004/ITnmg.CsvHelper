@@ -27,22 +27,27 @@ namespace ITnmg.CsvHelper
         /// <summary>
         /// 读取缓存长度
         /// </summary>
-        private int ReadBufferLength = 40960;
+        private int readBufferLength = 40960;
+
+        /// <summary>
+        /// 取消用token
+        /// </summary>
+        public CancellationToken CancelToken { get; private set; } = CancellationToken.None;
 
         /// <summary>
         /// 获取是否将第一行数据做为列标题, 默认为 true.
         /// </summary>
-        public bool FirstRowIsHead = true;
+        public bool FirstRowIsHead { get; private set; } = true;
 
         /// <summary>
-        /// csv 字段分隔符与限定符
+        /// csv 字段分隔符与限定符, default: CsvFlag.CsvFlagForRFC4180.
         /// </summary>
-        public CsvFlag Flag { get; set; }
+        public CsvFlag Flag { get; private set; } = CsvFlag.CsvFlagForRFC4180;
 
         /// <summary>
-        /// 字符编码
+        /// 字符编码,默认为 UTF8.
         /// </summary>
-        public Encoding DataEncoding { get; set; }
+        public Encoding DataEncoding { get; private set; } = Encoding.UTF8;
 
 
         /// <summary>
@@ -51,13 +56,14 @@ namespace ITnmg.CsvHelper
         /// <param name="stream">要读取的流</param>
         /// <param name="dataEncoding">字符编码</param>
         /// <param name="flag">csv 字段分隔符与限定符</param>
+        /// <param name="cancelToken">取消用token</param>
         /// <param name="firstRowIsHead">是否将第一行数据做为标题行</param>
         /// <param name="readBufferLength">流读取缓冲大小, 默认为 40960 字节.</param>
-        public CsvReadHelper( Stream stream, Encoding dataEncoding, CsvFlag flag, bool firstRowIsHead = true, int readBufferLength = 40960 )
+        public CsvReadHelper( Stream stream, Encoding dataEncoding, CsvFlag flag, CancellationToken cancelToken, bool firstRowIsHead = true, int readBufferLength = 40960 )
         {
             if ( stream == null )
             {
-                throw new ArgumentNullException( nameof ( stream ) );
+                throw new ArgumentNullException( nameof( stream ) );
             }
 
             if ( dataEncoding == null )
@@ -72,9 +78,10 @@ namespace ITnmg.CsvHelper
 
             DataEncoding = dataEncoding;
             Flag = flag;
+            CancelToken = cancelToken;
             FirstRowIsHead = firstRowIsHead;
-            ReadBufferLength = readBufferLength;
-            csvStream = new StreamReader( stream, DataEncoding, false, ReadBufferLength );
+            this.readBufferLength = readBufferLength;
+            csvStream = new StreamReader( stream, DataEncoding, false, this.readBufferLength );
         }
 
         /// <summary>
@@ -85,7 +92,7 @@ namespace ITnmg.CsvHelper
         /// <param name="firstRowIsHead">是否将第一行数据做为标题行</param>
         /// <param name="readBufferLength">流读取缓冲大小, 默认为 40960 字节.</param>
         public CsvReadHelper( Stream stream, CsvFlag flag, bool firstRowIsHead = true, int readBufferLength = 40960 )
-            : this( stream, Encoding.UTF8, flag, firstRowIsHead, readBufferLength )
+            : this( stream, Encoding.UTF8, flag, CancellationToken.None, firstRowIsHead, readBufferLength )
         {
         }
 
@@ -95,10 +102,11 @@ namespace ITnmg.CsvHelper
         /// <param name="csvFileName">要读取的文件路径及名称</param>
         /// <param name="dataEncoding">字符编码</param>
         /// <param name="flag">csv 字段分隔符与限定符</param>
+        /// <param name="cancelToken">取消用token</param>
         /// <param name="firstRowIsHead">是否将第一行数据做为标题行</param>
         /// <param name="readBufferLength">流读取缓冲大小, 默认为 40960 字节.</param>
-        public CsvReadHelper( string csvFileName, Encoding dataEncoding, CsvFlag flag, bool firstRowIsHead = true, int readBufferLength = 40960 )
-            : this( File.Open( csvFileName, FileMode.Open ), dataEncoding, flag, firstRowIsHead, readBufferLength )
+        public CsvReadHelper( string csvFileName, Encoding dataEncoding, CsvFlag flag, CancellationToken cancelToken, bool firstRowIsHead = true, int readBufferLength = 40960 )
+            : this( File.Open( csvFileName, FileMode.Open ), dataEncoding, flag, cancelToken, firstRowIsHead, readBufferLength )
         {
         }
 
@@ -110,7 +118,7 @@ namespace ITnmg.CsvHelper
         /// <param name="firstRowIsHead">是否将第一行数据做为标题行</param>
         /// <param name="readBufferLength">流读取缓冲大小, 默认为 40960 字节.</param>
         public CsvReadHelper( string csvFileName, CsvFlag flag, bool firstRowIsHead = true, int readBufferLength = 40960 )
-            : this( csvFileName, Encoding.UTF8, flag, firstRowIsHead, readBufferLength )
+            : this( csvFileName, Encoding.UTF8, flag, CancellationToken.None, firstRowIsHead, readBufferLength )
         {
         }
 
@@ -128,14 +136,13 @@ namespace ITnmg.CsvHelper
         /// <exception cref="ArgumentNullException">convertRowData 为空时</exception>
         /// <exception cref="ArgumentException">readProgressSize 不大于0时</exception>
         /// <exception cref="OperationCanceledException">cancelToken.IsCancellationRequested 为 true 时</exception>
-        public async Task ReadAsync<T>( Action<CsvReadProgressInfo<T>> dataHandler, Func<List<string>, T> convertRowData, CancellationToken cancelToken
-            , int readProgressSize = 1000 ) where T : new()
+        public async Task ReadAsync<T>( Action<CsvReadProgressInfo<T>> dataHandler, Func<List<string>, T> convertRowData, int readProgressSize = 1000 ) where T : new()
         {
             #region Check params
-            
-            if ( cancelToken.IsCancellationRequested )
+
+            if ( CancelToken != null && CancelToken.IsCancellationRequested )
             {
-                cancelToken.ThrowIfCancellationRequested();
+                CancelToken.ThrowIfCancellationRequested();
             }
 
             if ( dataHandler == null )
@@ -156,7 +163,7 @@ namespace ITnmg.CsvHelper
             #endregion
 
             //读取数据缓冲
-            CharBuffer buffer = new CharBuffer(ReadBufferLength);
+            CharBuffer buffer = new CharBuffer( readBufferLength );
             //标题行
             List<string> columnNames = new List<string>();
             //完整的行
@@ -172,9 +179,9 @@ namespace ITnmg.CsvHelper
             //开始循环读取数据
             while ( !csvStream.EndOfStream )
             {
-                if ( cancelToken.IsCancellationRequested )
+                if ( CancelToken.IsCancellationRequested )
                 {
-                    cancelToken.ThrowIfCancellationRequested();
+                    CancelToken.ThrowIfCancellationRequested();
                 }
 
                 //读取一块数据
@@ -190,7 +197,7 @@ namespace ITnmg.CsvHelper
                 {
                     //在末尾添加换行符
                     buffer.Buffer.SetValue( '\r', buffer.EndIndex );
-                    buffer.Buffer.SetValue( '\n', buffer.EndIndex+1 );
+                    buffer.Buffer.SetValue( '\n', buffer.EndIndex + 1 );
                     buffer.Length = buffer.Length + 2;
                     GetRows( ref buffer, ref rows );
                     Progress( currentBytes, totalBytes, dataHandler, convertRowData, readProgressSize, rows, ref columnNames );
@@ -220,10 +227,7 @@ namespace ITnmg.CsvHelper
         {
             try
             {
-                if ( csvStream != null )
-                {
-                    csvStream.Close();
-                }
+                csvStream?.Close();
             }
             finally
             {
@@ -271,7 +275,7 @@ namespace ITnmg.CsvHelper
             }
 
             //生成通知数据
-            if ( rows.Count >= readProgressSize || ( rows.Count > 0 && csvStream.EndOfStream) )
+            if ( rows.Count >= readProgressSize || (rows.Count > 0 && csvStream.EndOfStream) )
             {
                 //通知数据
                 CsvReadProgressInfo<T> info = new CsvReadProgressInfo<T>();
@@ -400,7 +404,7 @@ namespace ITnmg.CsvHelper
             }
 
             //当字段包含限定符时
-            if ( result.IndexOf( Flag.FieldQualifier ) >= 0 )
+            if ( result.Contains( Flag.Qualifier ) )
             {
                 result = result.Trim();//先去除左右空格
 
