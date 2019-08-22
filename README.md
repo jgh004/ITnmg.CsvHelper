@@ -25,7 +25,7 @@ Run the following command in the Package Manager Console.
 [IETF RFC4180](https://tools.ietf.org/html/rfc4180)
 
 ### Read csv
-    public async Task ReadCsv( ... )
+    public async Task ReadCsvAsync( ... )
     {
         var csvReader = new CsvReadHelper( ... );
         
@@ -43,7 +43,7 @@ Run the following command in the Package Manager Console.
     }
     
 ### Write csv
-    public async Task WriteCsv( ... )
+    public async Task WriteCsvAsync( ... )
     {
         var csvWriter = new CsvWriteHelper( ..., f =>
         {
